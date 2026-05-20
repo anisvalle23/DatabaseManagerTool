@@ -1,0 +1,5 @@
+firebird-base==2.0.3
+firebird-driver==2.0.3
+protobuf==5.29.6
+python-dateutil==2.9.0.post0
+six==1.17.0
