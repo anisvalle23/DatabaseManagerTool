@@ -23,9 +23,11 @@ class MainWindow(QMainWindow):
 
         splitter = QSplitter(Qt.Horizontal)
 
+        left_panel = QWidget()
+        left_layout = QVBoxLayout(left_panel)
+
         self.tree = QTreeWidget()
         self.tree.setHeaderLabel("Objetos")
-        self.tree.setMinimumWidth(220)
         self.tree.itemClicked.connect(self.on_tree_item_clicked)
 
         self.categories = {}
@@ -34,6 +36,19 @@ class MainWindow(QMainWindow):
             item = QTreeWidgetItem([name])
             self.tree.addTopLevelItem(item)
             self.categories[name] = item
+
+        left_layout.addWidget(self.tree)
+
+        btn_new_table = QPushButton("+ Nueva Tabla")
+        btn_new_table.clicked.connect(self.open_create_table)
+        btn_new_view = QPushButton("+ Nueva Vista")
+        btn_new_view.clicked.connect(self.open_create_view)
+        btn_refresh = QPushButton("Actualizar")
+        btn_refresh.clicked.connect(self.refresh_objects)
+
+        left_layout.addWidget(btn_new_table)
+        left_layout.addWidget(btn_new_view)
+        left_layout.addWidget(btn_refresh)
 
         right_panel = QWidget()
         right_layout = QVBoxLayout(right_panel)
@@ -45,7 +60,10 @@ class MainWindow(QMainWindow):
         self.ddl_text = QTextEdit()
         self.ddl_text.setReadOnly(True)
         self.ddl_text.setPlaceholderText("Selecciona un objeto para ver su DDL")
+        btn_modify = QPushButton("Modificar (Exportar DDL al editor SQL)")
+        btn_modify.clicked.connect(self.export_ddl_to_editor)
         ddl_layout.addWidget(self.ddl_text)
+        ddl_layout.addWidget(btn_modify)
         self.tabs.addTab(self.ddl_tab, "DDL")
 
         self.sql_tab = QWidget()
@@ -69,13 +87,16 @@ class MainWindow(QMainWindow):
 
         right_layout.addWidget(self.tabs)
 
-        splitter.addWidget(self.tree)
+        splitter.addWidget(left_panel)
         splitter.addWidget(right_panel)
-        splitter.setSizes([220, 880])
+        splitter.setSizes([240, 860])
 
         main_layout.addWidget(splitter)
 
     def load_objects(self):
+        for category in self.categories.values():
+            category.takeChildren()
+
         try:
             for name in queries.get_tables():
                 QTreeWidgetItem(self.categories["Tablas"], [name])
@@ -107,6 +128,9 @@ class MainWindow(QMainWindow):
         except Exception as e:
             QMessageBox.critical(self, "Error", f"No se pudieron cargar los objetos:\n{str(e)}")
 
+    def refresh_objects(self):
+        self.load_objects()
+
     def on_tree_item_clicked(self, item, column):
         parent = item.parent()
         if parent is None:
@@ -135,6 +159,26 @@ class MainWindow(QMainWindow):
         self.ddl_text.setText(ddl)
         self.tabs.setCurrentIndex(0)
 
+    def export_ddl_to_editor(self):
+        ddl = self.ddl_text.toPlainText().strip()
+        if not ddl:
+            QMessageBox.warning(self, "Aviso", "Primero selecciona un objeto del árbol.")
+            return
+        self.sql_editor.setText(ddl)
+        self.tabs.setCurrentIndex(1)
+
+    def open_create_table(self):
+        from ui.create_table_dialog import CreateTableDialog
+        dialog = CreateTableDialog(self)
+        if dialog.exec_():
+            self.load_objects()
+
+    def open_create_view(self):
+        from ui.create_view_dialog import CreateViewDialog
+        dialog = CreateViewDialog(self)
+        if dialog.exec_():
+            self.load_objects()
+
     def run_sql(self):
         sql = self.sql_editor.toPlainText().strip()
         if not sql:
@@ -148,6 +192,7 @@ class MainWindow(QMainWindow):
 
             if result is None:
                 QMessageBox.information(self, "OK", "Sentencia ejecutada correctamente.")
+                self.load_objects()
                 return
 
             columns, rows = result
@@ -157,7 +202,10 @@ class MainWindow(QMainWindow):
 
             for row_idx, row in enumerate(rows):
                 for col_idx, value in enumerate(row):
-                    self.results_table.setItem(row_idx, col_idx, QTableWidgetItem(str(value) if value is not None else ""))
+                    self.results_table.setItem(
+                        row_idx, col_idx,
+                        QTableWidgetItem(str(value) if value is not None else "")
+                    )
 
         except Exception as e:
             QMessageBox.critical(self, "Error SQL", str(e))
