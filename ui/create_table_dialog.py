@@ -1,9 +1,9 @@
-from PyQt5.QtWidgets import (
+from PyQt6.QtWidgets import (
     QDialog, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit,
     QPushButton, QTableWidget, QTableWidgetItem, QComboBox,
-    QCheckBox, QMessageBox, QHeaderView, QTextEdit
+    QCheckBox, QMessageBox, QHeaderView, QTextEdit, QWidget
 )
-from PyQt5.QtCore import Qt
+from PyQt6.QtCore import Qt
 import database.connection as db
 
 FIREBIRD_TYPES = [
@@ -11,8 +11,6 @@ FIREBIRD_TYPES = [
     "NUMERIC", "DECIMAL", "CHAR", "VARCHAR", "DATE", "TIME",
     "TIMESTAMP", "BOOLEAN", "BLOB"
 ]
-
-TYPES_WITH_LENGTH = ["CHAR", "VARCHAR", "NUMERIC", "DECIMAL"]
 
 
 class CreateTableDialog(QDialog):
@@ -37,7 +35,7 @@ class CreateTableDialog(QDialog):
         self.columns_table.setHorizontalHeaderLabels(
             ["Nombre", "Tipo", "Longitud/Precisión", "Escala", "NOT NULL"]
         )
-        self.columns_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.columns_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
         layout.addWidget(self.columns_table)
 
         btn_cols_layout = QHBoxLayout()
@@ -73,26 +71,22 @@ class CreateTableDialog(QDialog):
         row = self.columns_table.rowCount()
         self.columns_table.insertRow(row)
 
-        name_item = QTableWidgetItem("")
-        self.columns_table.setItem(row, 0, name_item)
+        self.columns_table.setItem(row, 0, QTableWidgetItem(""))
 
         type_combo = QComboBox()
         for t in FIREBIRD_TYPES:
             type_combo.addItem(t)
         self.columns_table.setCellWidget(row, 1, type_combo)
 
-        length_item = QTableWidgetItem("")
-        self.columns_table.setItem(row, 2, length_item)
-
-        scale_item = QTableWidgetItem("")
-        self.columns_table.setItem(row, 3, scale_item)
+        self.columns_table.setItem(row, 2, QTableWidgetItem(""))
+        self.columns_table.setItem(row, 3, QTableWidgetItem(""))
 
         not_null_check = QCheckBox()
         not_null_check.setChecked(False)
         container = QWidget()
         cb_layout = QHBoxLayout(container)
         cb_layout.addWidget(not_null_check)
-        cb_layout.setAlignment(Qt.AlignCenter)
+        cb_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
         cb_layout.setContentsMargins(0, 0, 0, 0)
         self.columns_table.setCellWidget(row, 4, container)
 
@@ -105,7 +99,6 @@ class CreateTableDialog(QDialog):
         table_name = self.input_name.text().strip().upper()
         if not table_name:
             return None, "Escribe el nombre de la tabla."
-
         if self.columns_table.rowCount() == 0:
             return None, "Agrega al menos una columna."
 
@@ -140,10 +133,7 @@ class CreateTableDialog(QDialog):
                 else:
                     type_str = col_type
             elif col_type in ("CHAR", "VARCHAR"):
-                if length:
-                    type_str = f"{col_type}({length})"
-                else:
-                    type_str = f"{col_type}(100)"
+                type_str = f"{col_type}({length})" if length else f"{col_type}(100)"
             else:
                 type_str = col_type
 
@@ -167,12 +157,10 @@ class CreateTableDialog(QDialog):
         if error:
             QMessageBox.warning(self, "Error", error)
             return
-
         self.ddl_preview.setText(ddl)
-
         try:
             db.execute_query(ddl)
-            QMessageBox.information(self, "OK", f"Tabla creada exitosamente.")
+            QMessageBox.information(self, "OK", "Tabla creada exitosamente.")
             self.accept()
         except Exception as e:
             QMessageBox.critical(self, "Error", f"No se pudo crear la tabla:\n{str(e)}")

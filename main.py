@@ -1,19 +1,19 @@
 import sys
-from PyQt5.QtWidgets import QApplication
-from PyQt5.QtCore import QTranslator, QLibraryInfo
+from PyQt6.QtWidgets import QApplication
+from PyQt6.QtCore import QTranslator, QLibraryInfo
 from ui.login_window import LoginWindow
 
 app = QApplication(sys.argv)
 
 translator = QTranslator()
-translator.load("qt_es", QLibraryInfo.location(QLibraryInfo.TranslationsPath))
+translator.load("qt_es", QLibraryInfo.path(QLibraryInfo.LibraryPath.TranslationsPath))
 app.installTranslator(translator)
 
 app.setStyleSheet("""
     QWidget {
         background-color: #F5EFE6;
         color: #3B1A1A;
-        font-family: Segoe UI, Arial;
+        font-family: Arial;
         font-size: 13px;
     }
 
@@ -156,15 +156,6 @@ app.setStyleSheet("""
         selection-color: #F5EFE6;
     }
 
-    QCheckBox {
-        color: #3B1A1A;
-    }
-
-    QCheckBox::indicator:checked {
-        background-color: #722F37;
-        border: 1px solid #C9A84C;
-    }
-
     QScrollBar:vertical {
         background: #EDD9A3;
         width: 10px;
@@ -199,4 +190,4 @@ app.setStyleSheet("""
 
 window = LoginWindow()
 window.show()
-sys.exit(app.exec_())
+sys.exit(app.exec())

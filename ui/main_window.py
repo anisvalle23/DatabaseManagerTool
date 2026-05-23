@@ -1,9 +1,9 @@
-from PyQt5.QtWidgets import (
+from PyQt6.QtWidgets import (
     QMainWindow, QWidget, QSplitter, QTreeWidget, QTreeWidgetItem,
     QTabWidget, QTextEdit, QPushButton, QVBoxLayout, QHBoxLayout,
     QTableWidget, QTableWidgetItem, QLabel, QMessageBox, QHeaderView
 )
-from PyQt5.QtCore import Qt
+from PyQt6.QtCore import Qt
 import database.connection as db
 import database.queries as queries
 
@@ -21,7 +21,7 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(central)
         main_layout = QHBoxLayout(central)
 
-        splitter = QSplitter(Qt.Horizontal)
+        splitter = QSplitter(Qt.Orientation.Horizontal)
 
         left_panel = QWidget()
         left_layout = QVBoxLayout(left_panel)
@@ -79,7 +79,7 @@ class MainWindow(QMainWindow):
         sql_layout.addWidget(btn_run)
 
         self.results_table = QTableWidget()
-        self.results_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.results_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
         sql_layout.addWidget(QLabel("Resultados:"))
         sql_layout.addWidget(self.results_table)
 
@@ -100,31 +100,22 @@ class MainWindow(QMainWindow):
         try:
             for name in queries.get_tables():
                 QTreeWidgetItem(self.categories["Tablas"], [name])
-
             for name in queries.get_views():
                 QTreeWidgetItem(self.categories["Vistas"], [name])
-
             for name in queries.get_procedures():
                 QTreeWidgetItem(self.categories["Procedimientos"], [name])
-
             for name in queries.get_functions():
                 QTreeWidgetItem(self.categories["Funciones"], [name])
-
             for name in queries.get_triggers():
                 QTreeWidgetItem(self.categories["Triggers"], [name])
-
             for name in queries.get_indexes():
                 QTreeWidgetItem(self.categories["Indices"], [name])
-
             for name in queries.get_sequences():
                 QTreeWidgetItem(self.categories["Secuencias"], [name])
-
             for name in queries.get_users():
                 QTreeWidgetItem(self.categories["Usuarios"], [name])
-
             for name in queries.get_packages():
                 QTreeWidgetItem(self.categories["Paquetes"], [name])
-
         except Exception as e:
             QMessageBox.critical(self, "Error", f"No se pudieron cargar los objetos:\n{str(e)}")
 
@@ -170,13 +161,13 @@ class MainWindow(QMainWindow):
     def open_create_table(self):
         from ui.create_table_dialog import CreateTableDialog
         dialog = CreateTableDialog(self)
-        if dialog.exec_():
+        if dialog.exec():
             self.load_objects()
 
     def open_create_view(self):
         from ui.create_view_dialog import CreateViewDialog
         dialog = CreateViewDialog(self)
-        if dialog.exec_():
+        if dialog.exec():
             self.load_objects()
 
     def run_sql(self):
@@ -206,6 +197,5 @@ class MainWindow(QMainWindow):
                         row_idx, col_idx,
                         QTableWidgetItem(str(value) if value is not None else "")
                     )
-
         except Exception as e:
             QMessageBox.critical(self, "Error SQL", str(e))

@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import (
+from PyQt6.QtWidgets import (
     QDialog, QVBoxLayout, QHBoxLayout, QLabel,
     QLineEdit, QPushButton, QTextEdit, QMessageBox
 )
@@ -49,14 +49,11 @@ class CreateViewDialog(QDialog):
     def build_ddl(self):
         name = self.input_name.text().strip().upper()
         sql = self.sql_editor.toPlainText().strip()
-
         if not name:
             return None, "Escribe el nombre de la vista."
         if not sql:
             return None, "Escribe la sentencia SELECT."
-
-        ddl = f"CREATE VIEW {name} AS\n{sql}"
-        return ddl, None
+        return f"CREATE VIEW {name} AS\n{sql}", None
 
     def generate_ddl(self):
         ddl, error = self.build_ddl()
@@ -70,9 +67,7 @@ class CreateViewDialog(QDialog):
         if error:
             QMessageBox.warning(self, "Error", error)
             return
-
         self.ddl_preview.setText(ddl)
-
         try:
             db.execute_query(ddl)
             QMessageBox.information(self, "OK", "Vista creada exitosamente.")

@@ -1,4 +1,4 @@
-import firebird.driver as fb
+import firebirdsql
 
 saved_connections = []
 active_connection = None
@@ -7,8 +7,13 @@ active_cursor = None
 
 def connect(host, port, database, user, password):
     global active_connection, active_cursor
-    dsn = f"{host}/{port}:{database}"
-    con = fb.connect(database=dsn, user=user, password=password)
+    con = firebirdsql.connect(
+        host=host,
+        port=int(port),
+        database=database,
+        user=user,
+        password=password
+    )
     active_connection = con
     active_cursor = con.cursor()
     return con

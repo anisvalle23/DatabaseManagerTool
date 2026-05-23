@@ -1,9 +1,9 @@
-from PyQt5.QtWidgets import (
+from PyQt6.QtWidgets import (
     QWidget, QLabel, QLineEdit, QPushButton,
     QVBoxLayout, QHBoxLayout, QListWidget, QMessageBox, QFormLayout, QFrame
 )
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QFont
+from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QFont
 import database.connection as db
 
 
@@ -20,18 +20,18 @@ class LoginWindow(QWidget):
         outer_layout.setContentsMargins(30, 20, 30, 20)
 
         title = QLabel("Database Manager")
-        title.setAlignment(Qt.AlignCenter)
-        title.setFont(QFont("Segoe UI", 20, QFont.Bold))
+        title.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        title.setFont(QFont("Arial", 20, QFont.Weight.Bold))
         title.setStyleSheet("color: #722F37; margin-bottom: 6px;")
         outer_layout.addWidget(title)
 
         subtitle = QLabel("Firebird Database Administration Tool")
-        subtitle.setAlignment(Qt.AlignCenter)
+        subtitle.setAlignment(Qt.AlignmentFlag.AlignCenter)
         subtitle.setStyleSheet("color: #C9A84C; font-size: 11px; font-weight: normal; margin-bottom: 16px;")
         outer_layout.addWidget(subtitle)
 
         line = QFrame()
-        line.setFrameShape(QFrame.HLine)
+        line.setFrameShape(QFrame.Shape.HLine)
         line.setStyleSheet("color: #C9A84C;")
         outer_layout.addWidget(line)
 
@@ -76,7 +76,7 @@ class LoginWindow(QWidget):
         form.addRow("Usuario:", self.input_user)
 
         self.input_password = QLineEdit()
-        self.input_password.setEchoMode(QLineEdit.Password)
+        self.input_password.setEchoMode(QLineEdit.EchoMode.Password)
         form.addRow("Contraseña:", self.input_password)
 
         right_layout.addLayout(form)
